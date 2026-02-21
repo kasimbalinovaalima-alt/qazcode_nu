@@ -10,20 +10,20 @@ Medical Diagnosis Assistant
 
 Способ 1: Запуск через Python (локально)
 ```bash
-# 1. Клонировать репозиторий
+ 1. Клонировать репозиторий
 git clone https://github.com/kasimbalinovaalima-alt/qazcode_nu.git
 cd qazcode_nu
-# 2. Установить зависимости
+ 2. Установить зависимости
 pip install fastapi uvicorn httpx
-# 3. Запустить сервер
+ 3. Запустить сервер
 python src/server.py
-# 4. Открыть в браузере
+ 4. Открыть в браузере
 http://localhost:8001
 
 Способ 2:
-# 1. Собрать образ
+ 1. Собрать образ
 docker build -t medical-diagnosis .
-# 2. Запустить контейнер
-docker run -p 8080:8001 medical-diagnosis
-# 3. Открыть в браузере
-http://localhost:8080
+ 2. Запустить контейнер
+docker run -p 8081:8001 medical-diagnosis
+ 3. Открыть в браузере
+http://localhost:8081
