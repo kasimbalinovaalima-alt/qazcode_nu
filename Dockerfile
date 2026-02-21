@@ -1,16 +1,16 @@
-FROM python:3.12-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
 
 COPY src/ ./src/
+COPY static/ ./static/
+COPY pyproject.toml ./
 
-ENV PYTHONUNBUFFERED=1
+RUN pip install fastapi uvicorn httpx
 
-EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "src.mock_server:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8080
+
+
+CMD ["python", "src/server.py"]

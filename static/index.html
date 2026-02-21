@@ -1,0 +1,522 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .warning-banner {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .warning-banner i {
+            font-style: normal;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .example-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: 1px solid #dee2e6;
+        }
+        
+        .example-btn:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .analyze-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .analyze-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 30px 0;
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .results-header h2 {
+            color: #333;
+        }
+        
+        .diagnosis-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .diagnosis-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .diagnosis-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .diagnosis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .diagnosis-header.expanded {
+            background: #e9ecef;
+            border-bottom-color: #667eea;
+        }
+        
+        .diagnosis-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .icd-code {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .diagnosis-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .probability-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            background: #28a745;
+            color: white;
+        }
+        
+        .probability-badge.high {
+            background: #28a745;
+        }
+        
+        .probability-badge.medium {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .probability-badge.low {
+            background: #dc3545;
+        }
+        
+        .expand-icon {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .explanation-content {
+            padding: 20px;
+            background: white;
+            line-height: 1.6;
+            color: #444;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .explanation-loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .explanation-error {
+            color: #dc3545;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .footer-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Medical Diagnosis Assistant</h1>
+        <div class="subtitle">Система поддержки принятия клинических решений</div>
+        
+        <div class="warning-banner">
+            <i>⚠️</i> ВНИМАНИЕ: Данные диагнозы являются предположительными. 
+            Для установления точного диагноза необходимо обратиться к врачу!
+        </div>
+        
+        <div class="input-section">
+            <div class="examples">
+                <button class="example-btn" onclick="setExample('кашель, температура 38, слабость')">🌡️ ОРВИ симптомы</button>
+                <button class="example-btn" onclick="setExample('сильная головная боль, тошнота, светобоязнь')">🤕 Мигрень</button>
+                <button class="example-btn" onclick="setExample('боль в горле, температура, увеличенные лимфоузлы')">🦷 Ангина</button>
+                <button class="example-btn" onclick="setExample('кашель с мокротой, одышка, температура')">🫁 Пневмония</button>
+            </div>
+            
+            <textarea id="symptoms" placeholder="Опишите ваши симптомы подробно... Например: кашель, температура 38.5, насморк, головная боль, слабость"></textarea>
+            
+            <button class="analyze-btn" onclick="analyzeSymptoms()" id="analyzeBtn">
+                🔍 Проанализировать симптомы
+            </button>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            Анализируем симптомы и определяем вероятные диагнозы
+        </div>
+        
+        <div id="results" class="results-section" style="display: none;">
+            <div class="results-header">
+                <h2>📋 Вероятные диагнозы</h2>
+                <span style="color: #666;">Нажмите на диагноз для подробного объяснения</span>
+            </div>
+            <div id="diagnosisList" class="diagnosis-list"></div>
+        </div>
+        
+        <div class="footer-note">
+            ⚕️ На основе клинических протоколов Министерства здравоохранения Республики Казахстан
+        </div>
+    </div>
+
+    <script>
+        let currentSymptoms = '';
+        let expandedDiagnosis = null;
+
+        function setExample(text) {
+            document.getElementById('symptoms').value = text;
+            document.getElementById('symptoms').focus();
+        }
+
+        async function analyzeSymptoms() {
+            const symptoms = document.getElementById('symptoms').value.trim();
+            
+            if (!symptoms) {
+                alert('Пожалуйста, введите симптомы');
+                return;
+            }
+            
+            currentSymptoms = symptoms;
+            
+            // Показываем загрузку
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('diagnosisList').innerHTML = '';
+            
+            try {
+                const response = await fetch('/diagnose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: symptoms })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Ошибка сервера');
+                }
+                
+                displayDiagnoses(data.diagnoses);
+                
+            } catch (error) {
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('diagnosisList').innerHTML = `
+                    <div class="error-message">
+                        ❌ Ошибка: ${error.message}<br>
+                        <small>Проверьте подключение к серверу</small>
+                    </div>
+                `;
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        function displayDiagnoses(diagnoses) {
+            const diagnosisList = document.getElementById('diagnosisList');
+            diagnosisList.innerHTML = '';
+            
+            diagnoses.sort((a, b) => b.probability - a.probability);
+            
+            diagnoses.slice(0, 3).forEach((diag, index) => {
+                const probabilityPercent = Math.round(diag.probability * 100);
+                let probabilityClass = 'probability-badge';
+                
+                if (probabilityPercent >= 70) probabilityClass += ' high';
+                else if (probabilityPercent >= 40) probabilityClass += ' medium';
+                else probabilityClass += ' low';
+                
+                const cardId = `diag-${index}`;
+                
+                const card = document.createElement('div');
+                card.className = 'diagnosis-card';
+                card.innerHTML = `
+                    <div class="diagnosis-header" onclick="toggleExplanation('${cardId}')">
+                        <div class="diagnosis-title">
+                            <span class="icd-code">${diag.icd_code}</span>
+                            <span class="diagnosis-name">${diag.name}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span class="${probabilityClass}">${probabilityPercent}%</span>
+                            <span class="expand-icon" id="icon-${cardId}">▼</span>
+                        </div>
+                    </div>
+                    <div id="${cardId}" class="explanation-content" style="display: none;">
+                        <div class="explanation-loading">Загрузка объяснения...</div>
+                    </div>
+                `;
+                
+                diagnosisList.appendChild(card);
+                
+                // Сохраняем данные диагноза для загрузки объяснения
+                card.dataset.icdCode = diag.icd_code;
+                card.dataset.diagnosisName = diag.name;
+            });
+            
+            document.getElementById('results').style.display = 'block';
+        }
+
+        async function toggleExplanation(cardId) {
+            const explanationDiv = document.getElementById(cardId);
+            const icon = document.getElementById(`icon-${cardId}`);
+            const card = explanationDiv.closest('.diagnosis-card');
+            const header = card.querySelector('.diagnosis-header');
+            
+            // Если это тот же диагноз, просто сворачиваем/разворачиваем
+            if (expandedDiagnosis === cardId) {
+                if (explanationDiv.style.display === 'none') {
+                    explanationDiv.style.display = 'block';
+                    header.classList.add('expanded');
+                    icon.textContent = '▲';
+                } else {
+                    explanationDiv.style.display = 'none';
+                    header.classList.remove('expanded');
+                    icon.textContent = '▼';
+                }
+                return;
+            }
+            
+            // Сворачиваем предыдущий
+            if (expandedDiagnosis) {
+                const prevDiv = document.getElementById(expandedDiagnosis);
+                const prevIcon = document.getElementById(`icon-${expandedDiagnosis}`);
+                const prevHeader = prevDiv.closest('.diagnosis-card').querySelector('.diagnosis-header');
+                if (prevDiv) {
+                    prevDiv.style.display = 'none';
+                    prevHeader.classList.remove('expanded');
+                    prevIcon.textContent = '▼';
+                }
+            }
+            
+            // Разворачиваем новый
+            explanationDiv.style.display = 'block';
+            header.classList.add('expanded');
+            icon.textContent = '▲';
+            expandedDiagnosis = cardId;
+            
+            // Если объяснение еще не загружено, загружаем
+            if (explanationDiv.querySelector('.explanation-loading')) {
+                await loadExplanation(cardId, card.dataset.icdCode, card.dataset.diagnosisName);
+            }
+        }
+
+        async function loadExplanation(cardId, icdCode, diagnosisName) {
+            const explanationDiv = document.getElementById(cardId);
+            
+            try {
+                const response = await fetch('/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symptoms: currentSymptoms,
+                        icd_code: icdCode,
+                        diagnosis_name: diagnosisName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Ошибка загрузки объяснения');
+                }
+                
+                explanationDiv.innerHTML = `<div>${data.explanation}</div>`;
+                
+            } catch (error) {
+                explanationDiv.innerHTML = `
+                    <div class="explanation-error">
+                        ❌ Не удалось загрузить объяснение<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Отправка по Ctrl+Enter
+        document.getElementById('symptoms').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                analyzeSymptoms();
+            }
+        });
+    </script>
+</body>
+</html>

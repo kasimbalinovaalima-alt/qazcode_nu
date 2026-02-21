@@ -1,0 +1,11 @@
+{
+  "submission_name": "datasour_team",
+  "total_protocols": 220,
+  "accuracy_at_1_percent": 0.0,
+  "recall_at_3_percent": 1.36,
+  "latency_avg_s": 0.007,
+  "latency_min_s": 0.004,
+  "latency_max_s": 0.286,
+  "latency_p50_s": 0.004,
+  "latency_p95_s": 0.006
+}
