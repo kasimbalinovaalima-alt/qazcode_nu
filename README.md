@@ -24,6 +24,6 @@ http://localhost:8001
  1. Собрать образ
 docker build -t medical-diagnosis .
  2. Запустить контейнер
-docker run -p 8081:8001 medical-diagnosis
+docker run -p 8080:8001 medical-diagnosis
  3. Открыть в браузере
 http://localhost:8081
