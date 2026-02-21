@@ -1,88 +1,69 @@
-# src/ml_api_client.py
-import httpx
+# src/ml_api_client.py - ПОЛНОСТЬЮ ОФЛАЙН ВЕРСИЯ
 from typing import List, Dict, Any
-import asyncio
 
 class MLModelAPIClient:
-    """
-    Клиент для подключения к API ML модели
-    """
-    
-    def __init__(self, api_url: str = "http://ml-service:8000/predict"):
-        """
-        Инициализация клиента
+
+    def __init__(self, api_url: str = None):
+        # api_url больше не используется - мы в офлайне!
+        print("✅ ОФЛАЙН-РЕЖИМ: нет внешних вызовов")
+        print("📦 Модель будет загружена локально")
+        self.offline_mode = True
         
-        Args:
-            api_url: URL где будет доступна ML модель
-                    Например: "http://localhost:8002/predict"
-                    Или: "http://ml-container:8000/predict"
-        """
-        self.api_url = api_url
-        self.client = httpx.Client(timeout=30.0)
-        print(f"🔄 ML API клиент инициализирован. URL: {api_url}")
+        # Здесь ML команда будет загружать реальную модель
+        self.model = None
+        print("🔄 Заглушка: модель не загружена (ждем ML команду)")
     
     def predict(self, symptoms: str) -> List[Dict[str, Any]]:
         """
-        Отправляет симптомы в ML API и получает диагнозы
+        Локальное предсказание БЕЗ ИНТЕРНЕТА
+        """
+        print(f"🔍 Локальный анализ симптомов: {symptoms}")
         
-        Args:
-            symptoms: строка с симптомами
-            
-        Returns:
-            Список диагнозов в формате:
-            [
+        # ВРЕМЕННАЯ ЗАГЛУШКА - потом ML команда заменит на реальную модель
+        # Но это будет локальный вызов, без интернета!
+        
+        symptoms_lower = symptoms.lower()
+        
+        # Простая логика для демонстрации офлайн-работы
+        if "кашель" in symptoms_lower and "температура" in symptoms_lower:
+            return [
                 {
                     "icd_code": "J06.9",
-                    "name": "Диагноз",
+                    "name": "Острая инфекция верхних дыхательных путей",
                     "probability": 0.85,
-                    "explanation": "Объяснение"
+                    "explanation": "Локальный анализ: кашель и температура типичны для ОРВИ"
+                },
+                {
+                    "icd_code": "J15.9",
+                    "name": "Пневмония",
+                    "probability": 0.15,
+                    "explanation": "Локальный анализ: если кашель влажный и температура держится"
                 }
             ]
-        """
-        try:
-            # Отправляем POST запрос к ML API
-            response = self.client.post(
-                self.api_url,
-                json={"symptoms": symptoms}
-            )
-            
-            # Проверяем ответ
-            response.raise_for_status()
-            
-            # Получаем результат
-            result = response.json()
-            
-            # Ожидаем, что ML API вернет список диагнозов
-            if isinstance(result, list):
-                return result
-            elif isinstance(result, dict) and "diagnoses" in result:
-                return result["diagnoses"]
-            else:
-                print(f"❌ Неожиданный формат ответа: {result}")
-                return self._fallback_response(symptoms)
-                
-        except Exception as e:
-            print(f"❌ Ошибка при обращении к ML API: {e}")
-            return self._fallback_response(symptoms)
-    
-    def _fallback_response(self, symptoms: str) -> List[Dict[str, Any]]:
-        """
-        Запасной вариант, если API недоступен
-        """
-        return [
-            {
-                "icd_code": "R69",
-                "name": "Неуточненное заболевание",
-                "probability": 1.0,
-                "explanation": f"ML API недоступно. Симптомы: {symptoms}"
-            }
-        ]
-    
-    def __del__(self):
-        """Закрываем соединение при удалении объекта"""
-        if hasattr(self, 'client'):
-            self.client.close()
+        elif "головная боль" in symptoms_lower:
+            return [
+                {
+                    "icd_code": "G44.2",
+                    "name": "Головная боль напряжения",
+                    "probability": 0.70,
+                    "explanation": "Локальный анализ: наиболее частая причина головной боли"
+                },
+                {
+                    "icd_code": "G43.9",
+                    "name": "Мигрень",
+                    "probability": 0.30,
+                    "explanation": "Локальный анализ: если боль пульсирующая и односторонняя"
+                }
+            ]
+        else:
+            return [
+                {
+                    "icd_code": "R69",
+                    "name": "Неуточненное заболевание",
+                    "probability": 1.0,
+                    "explanation": "Локальный анализ: требуется дополнительное обследование"
+                }
+            ]
 
-
-# !!! ВАЖНО: ЗАМЕНИТЕ URL НА РЕАЛЬНЫЙ АДРЕС ML API !!!
-ml_api = MLModelAPIClient(api_url="http://localhost:8002/predict")
+# Создаем глобальный экземпляр (теперь без URL - чисто офлайн!)
+ml_api = MLModelAPIClient()
