@@ -21,7 +21,6 @@ python src/server.py
 http://localhost:8001
 
 Способ 2:
-```bash
 # 1. Собрать образ
 docker build -t medical-diagnosis .
 # 2. Запустить контейнер
